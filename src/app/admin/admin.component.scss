@@ -2,3 +2,7 @@
 :host ::ng-deep nb-layout-header.fixed ~ .layout-container {
     padding-top: 4px !important;
 }
+
+:host ::ng-deep nb-layout .layout .layout-container .content .columns nb-layout-column {
+    padding: 0px !important;
+}
