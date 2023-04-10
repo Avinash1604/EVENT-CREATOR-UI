@@ -4,5 +4,9 @@
 }
 
 :host ::ng-deep nb-layout .layout .layout-container .content .columns nb-layout-column {
-    padding: 0px !important;
+    padding-left: 0px !important;
+}
+
+:host ::ng-deep .layout-container {
+    background: white !important;
 }

@@ -1,24 +1,16 @@
 <div class="p-0 m-0 public-form-page b4-ab">
   <div class="bar-progress" [class.invisible]="!showForm">
-    <p-progressBar
-      [value]="value"
-      [showValue]="false"
-      [style]="{
+    <p-progressBar [value]="value" [showValue]="false" [style]="{
         height: '5px',
         background: colorLuminance(backgroundColor, 0.9)
-      }"
-    ></p-progressBar>
+      }"></p-progressBar>
   </div>
   <div #backgroundImage class="public-form-page-image">
-    <div
-      class="container public-form-page-content flex-column justify-content-center align-items-center"
-      [class.d-none]="!showForm"
-    >
+    <div class="container public-form-page-content flex-column justify-content-center align-items-center"
+      [class.d-none]="!showForm">
       <div class="top-wrapper mt-2 row d-flex justify-content-center">
-        <div
-          class="save-later my-2 col-sm-10 col-md-9 col-lg-8 d-flex justify-content-end fade-in-animation"
-          *ngIf="currentQuestionNo == 0; else saveLater"
-        >
+        <div class="save-later my-2 col-sm-10 col-md-9 col-lg-8 d-flex justify-content-end fade-in-animation"
+          *ngIf="currentQuestionNo == 0; else saveLater">
           <!-- <div class="d-flex flex-column align-items-end">
             <span class="p-2 rounded save-later-bg">
               Already filled the form?
@@ -36,9 +28,7 @@
           </div> -->
         </div>
         <ng-template #saveLater>
-          <div
-            class="save-later my-2 col-sm-10 col-md-9 col-lg-8 d-flex justify-content-end fade-in-animation"
-          >
+          <div class="save-later my-2 col-sm-10 col-md-9 col-lg-8 d-flex justify-content-end fade-in-animation">
             <!-- <div class="d-flex flex-column align-items-end">
               <span class="p-2 rounded save-later-bg">
                 Don't feel like Completing the form now?
@@ -59,16 +49,10 @@
             </div> -->
           </div>
         </ng-template>
-        <div
-          class="logo-wrapper text-align-center d-flex justify-content-center align-items-center fade-in-animation"
-          *ngIf="logoUrl && (currentQuestionNo == 0 || showLogo)"
-        >
+        <div class="logo-wrapper text-align-center d-flex justify-content-center align-items-center fade-in-animation"
+          *ngIf="logoUrl && (currentQuestionNo == 0 || showLogo)">
           <div class="logo">
-            <img
-              [src]="logoUrl"
-              style="max-width: 100%; height: auto"
-              class="business-logo"
-            />
+            <img [src]="logoUrl" style="max-width: 100%; height: auto" class="business-logo" />
           </div>
         </div>
       </div>
@@ -86,142 +70,111 @@
               <div class="form-question pb-2">
                 <div class="form-question-label">
                   <span>
-                    {{ currentQuestion?.questionName }}
+                    {{ currentQuestion?.label }}
                   </span>
-                  <span *ngIf="currentQuestion.required" class="error-red"
-                    >*</span
-                  >
+                  <span *ngIf="currentQuestion.required" class="error-red">*</span>
                 </div>
 
-                <div
-                  *ngIf="currentQuestion.subHeading"
-                  class="form-question-label"
-                >
+                <div *ngIf="currentQuestion.subHeading" class="form-question-label">
                   {{ currentQuestion.subHeading }}
                 </div>
               </div>
-              <div
-                *ngIf="currentQuestion.description"
-                class="form-question-description pb-2"
-              >
+              <div *ngIf="currentQuestion.description" class="form-question-description pb-2">
                 {{ currentQuestion.description }}
               </div>
             </div>
 
             <div class="input-wrapper">
               <input
-                *ngIf="currentQuestion.questionType == 'Input'"
-                type="text"
-                class="user-input-box"
-                placeholder="Type your answer here..."
-                formControlName="formControl"
-                autofocus
-              />
-              <ng-container
-                *ngIf="
-                  currentQuestion.questionType == 'Multiple_Selection_Text'
-                "
-              >
-                <p-multiSelect [resetFilterOnHide]="true"
-                  *ngIf="
+                *ngIf="currentQuestion.type == 'Input' || currentQuestion.type == 'text' || currentQuestion.type == 'email'"
+                type="text" class="user-input-box" placeholder="Type your answer here..." formControlName="formControl"
+                autofocus />
+              <input *ngIf="currentQuestion.type == 'number'|| currentQuestion.type == 'phone'"
+                type={{currentQuestion.type}} class="user-input-box" placeholder="Type your answer here..."
+                formControlName="formControl" autofocus />
+              <ng-container *ngIf="
+                  currentQuestion.type == 'Multiple_Selection_Text'
+                ">
+                <p-multiSelect [resetFilterOnHide]="true" *ngIf="
                     currentQuestion.preSelectCheckbox ||
                       currentQuestion.allowMultipleSelection;
                     else dropDownOrRadioButtons
-                  "
-                  [options]="currentQuestion.patientQuestionChoices"
-                  formControlName="formControl"
-                  defaultLabel="Select All those apply"
-                  optionLabel="choiceName"
-                  optionValue="choiceId"
-                  display="chip"
-                >
+                  " [options]="currentQuestion.values" formControlName="formControl"
+                  defaultLabel="Select All those apply" optionLabel="label" optionValue="value" display="chip">
                 </p-multiSelect>
 
                 <ng-template #dropDownOrRadioButtons>
-                  <p-dropdown
-                    *ngIf="currentQuestion.showDropDown; else radioButtons"
-                    [options]="currentQuestion.patientQuestionChoices"
-                    formControlName="formControl"
-                    optionLabel="choiceName"
-                    optionValue="choiceId"
-                    placeholder="Please select an option."
-                  >
+                  <p-dropdown *ngIf="currentQuestion.showDropDown; else radioButtons" [options]="currentQuestion.values"
+                    formControlName="formControl" optionLabel="label" optionValue="value"
+                    placeholder="Please select an option.">
                   </p-dropdown>
                   <ng-template #radioButtons>
-                    <div *ngFor="let choice of currentQuestion.patientQuestionChoices" class="field-checkbox">
-                      <p-radioButton [inputId]="choice.choiceId" [value]="choice.choiceId" formControlName="formControl"></p-radioButton>
-                      <label [for]="choice.choiceId">{{choice.choiceName}}</label>
+                    <div *ngFor="let choice of currentQuestion.values" class="field-checkbox">
+                      <p-radioButton [inputId]="choice.value" [value]="choice.value"
+                        formControlName="formControl"></p-radioButton>
+                      <label [for]="choice.value">{{choice.label}}</label>
                     </div>
                   </ng-template>
                 </ng-template>
               </ng-container>
 
-              <textarea
-                *ngIf="currentQuestion.questionType == 'Text'"
-                class="user-input-box formcontrol"
-                placeholder="Type your answer here..."
-                formControlName="formControl"
-                autofocus
-              ></textarea>
-              <div
-                class="form-input-field d-flex"
-                *ngIf="currentQuestion.questionType == 'Date'"
-              >
-                <p-calendar
-                  formControlName="formControl"
-                  [dateFormat]="dateFormat"
-                  [showButtonBar]="true"
-                  [showIcon]="true"
-                  dataType="string"
-                ></p-calendar>
+              <ng-container *ngIf="
+              currentQuestion.type == 'autocomplete'
+            ">
+                <p-dropdown [options]="currentQuestion.values" formControlName="formControl" optionLabel="label"
+                  optionValue="value" placeholder="Please select an option.">
+                </p-dropdown>
+              </ng-container>
+
+              <ng-container *ngIf="
+              currentQuestion.type == 'checkbox'
+            ">
+                <p-multiSelect [resetFilterOnHide]="true" [options]="currentQuestion.values"
+                  formControlName="formControl" defaultLabel="Select All those apply" optionLabel="label"
+                  optionValue="value" display="chip">
+                </p-multiSelect>
+              </ng-container>
+
+              <ng-container *ngIf="
+                currentQuestion.type == 'radio'
+              ">
+
+                <div *ngFor="let choice of currentQuestion.values" class="field-checkbox">
+                  <p-radioButton [inputId]="choice.value" [value]="choice.value"
+                    formControlName="formControl"></p-radioButton>
+                  <label [for]="choice.value" style="margin-left: 5px;">{{choice.label}}</label>
+                </div>
+              </ng-container>
+
+              <textarea *ngIf="currentQuestion.type == 'Text'" class="user-input-box formcontrol"
+                placeholder="Type your answer here..." formControlName="formControl" autofocus></textarea>
+              <div class="form-input-field d-flex" *ngIf="currentQuestion.type == 'date'">
+                <p-calendar formControlName="formControl" [dateFormat]="dateFormat" [showButtonBar]="true"
+                  [showIcon]="true" dataType="string"></p-calendar>
               </div>
-              <div
-                class="btn-group-toggle"
-                *ngIf="currentQuestion.questionType == 'Yes_No'"
-              >
+              <div class="btn-group-toggle" *ngIf="currentQuestion.type == 'Yes_No'">
                 <label
                   class="btn btn-outline-dark btn-wide shadow rounded mb-1 d-flex align-items-center justify-content-between"
-                  [class.active]="formControl.value == 'Yes'"
-                  (click)="changeAnswer('Yes')"
-                >
+                  [class.active]="formControl.value == 'Yes'" (click)="changeAnswer('Yes')">
                   <span class="">
-                    <span
-                      class="px-2 py-1 mr-2 border border-dark answer-letter"
-                      >Y</span
-                    >
-                    Yes</span
-                  >
+                    <span class="px-2 py-1 mr-2 border border-dark answer-letter">Y</span>
+                    Yes</span>
                   <span class="ml-4">
-                    <i
-                      class="fa fa-check"
-                      [class.invisible]="formControl.value != 'Yes'"
-                    ></i>
+                    <i class="fa fa-check" [class.invisible]="formControl.value != 'Yes'"></i>
                   </span>
                 </label>
                 <label
                   class="btn btn-outline-dark btn-wide shadow rounded mb-1 d-flex align-items-center justify-content-between"
-                  [class.active]="formControl.value == 'No'"
-                  (click)="changeAnswer('No')"
-                >
+                  [class.active]="formControl.value == 'No'" (click)="changeAnswer('No')">
                   <span class="">
-                    <span
-                      class="px-2 py-1 mr-2 border border-dark answer-letter"
-                      >N</span
-                    >
-                    No</span
-                  >
+                    <span class="px-2 py-1 mr-2 border border-dark answer-letter">N</span>
+                    No</span>
                   <span class="ml-4">
-                    <i
-                      class="fa fa-check"
-                      [class.invisible]="formControl.value != 'No'"
-                    ></i>
+                    <i class="fa fa-check" [class.invisible]="formControl.value != 'No'"></i>
                   </span>
                 </label>
               </div>
-              <div
-                class="col-12 px-0"
-                *ngIf="currentQuestion.questionType == 'File'"
-              >
+              <div class="col-12 px-0" *ngIf="currentQuestion.type == 'File'">
                 <!-- <app-file-drop-import
                   [file]="formControl.value"
                   (fileUpdate)="onFileChange($event)"
@@ -237,26 +190,20 @@
               <div class="d-inline-block" *ngIf="formControl.errors?.pattern">
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                 <span class="ml-1">{{
-                  currentQuestion.validationMessage
-                }}</span>
+                  currentQuestion.errorText
+                  }}</span>
               </div>
             </div>
             <div class="btn-group mt-2" *ngIf="!isInvalid()">
-              <button
-                *ngIf="currentQuestionNo != questions?.length - 1"
-                class="btn button-primary shadow"
-                (click)="setAnswer()"
-              >
+              <button *ngIf="currentQuestionNo != questions?.length - 1" class="btn button-primary shadow"
+                (click)="setAnswer()">
                 <span class="px-1"> Ok </span>
                 <span class="px-1">
                   <i class="fa fa-check"></i>
                 </span>
               </button>
-              <button
-                *ngIf="currentQuestionNo == questions?.length - 1"
-                class="btn button-primary shadow"
-                (click)="setAnswer()"
-              >
+              <button *ngIf="currentQuestionNo == questions?.length - 1" class="btn button-primary shadow"
+                (click)="setAnswer()">
                 <span class="px-1"> {{ submitButtonText }} </span>
                 <span class="px-1">
                   <i class="fa fa-check"></i>
@@ -267,28 +214,17 @@
         </div>
       </div>
       <div class="btn-group question-navigator" [class.d-none]="!showForm">
-        <button
-          class="btn button-primary shadow"
-          [disabled]="currentQuestionNo == 0"
-          (click)="prevQuestion()"
-        >
+        <button class="btn button-primary shadow" [disabled]="currentQuestionNo == 0" (click)="prevQuestion()">
           <i class="fa fa-angle-left"></i>
         </button>
-        <button
-          class="btn button-primary shadow"
-          [disabled]="
+        <button class="btn button-primary shadow" [disabled]="
             currentQuestionNo == questions?.length - 1
-          "
-          (click)="nextQuestion(true)"
-        >
+          " (click)="nextQuestion(true)">
           <i class="fa fa-angle-right"></i>
         </button>
       </div>
     </div>
-    <div
-      [ngClass]="showThankYou ? 'd-flex' : 'd-none'"
-      class="thank-you-wrapper"
-    >
+    <div [ngClass]="showThankYou ? 'd-flex' : 'd-none'" class="thank-you-wrapper">
       <div class="thank-you-content">
         <div *ngIf="thankYouPageMessageContactForm; else thankYou">
           <p>{{ thankYouPageMessageContactForm }}</p>
@@ -302,79 +238,45 @@
       </div>
     </div>
   </div>
-  <p-confirmDialog
-    [breakpoints]="{ '1024px': '50vw', '960px': '50vw', '640px': '90vw' }"
-    [style]="{ width: '25vw' }"
-    key="positionDialog"
-    position="top"
-    [baseZIndex]="10000"
-    defaultFocus="accept"
-    rejectButtonStyleClass="p-button-outlined"
-  >
+  <p-confirmDialog [breakpoints]="{ '1024px': '50vw', '960px': '50vw', '640px': '90vw' }" [style]="{ width: '25vw' }"
+    key="positionDialog" position="top" [baseZIndex]="10000" defaultFocus="accept"
+    rejectButtonStyleClass="p-button-outlined">
   </p-confirmDialog>
 
-  <p-dialog
-    [modal]="true"
-    [breakpoints]="{ '1024px': '50vw', '960px': '50vw', '640px': '90vw' }"
-    [style]="{ width: '25vw' }"
-    [baseZIndex]="10000"
-    [header]="'Load Form'"
-    [(visible)]="showEmailPopup"
-    (onHide)="closeEmailPopup()"
-  >
+  <p-dialog [modal]="true" [breakpoints]="{ '1024px': '50vw', '960px': '50vw', '640px': '90vw' }"
+    [style]="{ width: '25vw' }" [baseZIndex]="10000" [header]="'Load Form'" [(visible)]="showEmailPopup"
+    (onHide)="closeEmailPopup()">
     <div class="custom-blue">
       <div class="form-type2 pb-2">
         <form [formGroup]="emailPopupForm" class="login-box">
           <div class="row justify-content-center mx-0">
             <div class="col-lg-8 col-md-8 col-sm-12 px-0">
-              <div
-                class="form-group"
-                [ngClass]="
+              <div class="form-group" [ngClass]="
                   emailForm.email.invalid &&
                   (emailForm.email.dirty || emailForm.email.touched)
                     ? 'has-error'
                     : ''
-                "
-              >
+                ">
                 <label for="name"> Email<span class="error-red">*</span></label>
-                <input
-                  type="text"
-                  class="form-control popupinput"
-                  formControlName="email"
-                  placeholder="Enter Email"
-                  appErrorStylingDirective
-                />
+                <input type="text" class="form-control popupinput" formControlName="email" placeholder="Enter Email"
+                  appErrorStylingDirective />
                 <div class="error error-msg">
                   <div *ngIf="emailForm?.email.errors?.required">
-                    <i
-                      class="fa fa-exclamation-triangle"
-                      aria-hidden="true"
-                    ></i>
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                     <span class="ml-1"> Email is required. </span>
                   </div>
                   <div *ngIf="emailForm?.email.errors?.pattern">
-                    <i
-                      class="fa fa-exclamation-triangle"
-                      aria-hidden="true"
-                    ></i>
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                     <span class="ml-1"> Email is invalid. </span>
                   </div>
                 </div>
               </div>
               <div class="mt-3 d-flex justify-content-end">
-                <button
-                  [disabled]="!emailPopupForm.valid"
-                  (click)="fetchAnswers()"
-                  type="button"
-                  class="btn btn-primary btn-common"
-                >
+                <button [disabled]="!emailPopupForm.valid" (click)="fetchAnswers()" type="button"
+                  class="btn btn-primary btn-common">
                   Done
                 </button>
-                <button
-                  (click)="closeEmailPopup()"
-                  type="button"
-                  class="btn btn-dark btn-common ml-2"
-                >
+                <button (click)="closeEmailPopup()" type="button" class="btn btn-dark btn-common ml-2">
                   Cancel
                 </button>
               </div>

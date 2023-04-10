@@ -4,9 +4,10 @@ export interface PublicForm {
   id: any;
   questionnaireId: number;
   questionnaireName: string;
+  description: string;
   source: any;
   patientId: any;
-  patientQuestionAnswers: QuestionAnswer[];
+  questionAnswers: QuestionAnswer[];
   showTitle: boolean;
   buttonBackgroundColor: any;
   buttonForegroundColor: any;

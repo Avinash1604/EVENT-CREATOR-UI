@@ -10,6 +10,7 @@ import { QuestionAnswer } from 'src/app/shared/models/question-answer.model';
 import { PublicForm } from 'src/app/shared/models/public-form.model';
 import { LocalStorageService } from 'src/app/shared/service/local-storage.service';
 import { PublicAccessibleServiceService } from './public-accessible-service.service';
+import { TemplateServiceService } from '../form/template-service.service';
 
 export enum QuestionType {
   INPUT = 'Input',
@@ -21,14 +22,14 @@ export enum QuestionType {
 
 export interface QuestionState {
   formControl: FormControl;
-  questionType: string;
+  type: string;
   validations: Array<any>;
   isValid: Boolean;
 }
 
 export interface AnswerDTO {
   questionId: number;
-  questionType: string;
+  type: string;
   answer: any;
 }
 
@@ -46,7 +47,8 @@ export class PublicDynamicFormPageComponent implements OnInit {
     private publicAccessibleService: PublicAccessibleServiceService,
     private toastService: ToasTMessageService,
     private localStorageService: LocalStorageService,
-    private ngxLoader: NgxUiLoaderService
+    private ngxLoader: NgxUiLoaderService,
+    private templateService: TemplateServiceService
   ) {}
 
   bid: string = '';
@@ -134,10 +136,12 @@ export class PublicDynamicFormPageComponent implements OnInit {
   init() {
     this.fid = "111";
     if (this.fid) {
-            this.publicAccessibleService
-              .getFormQuestionnaire(this.bid)
-              .subscribe(
+            // this.publicAccessibleService
+            //   .getFormQuestionnaire(this.bid)
+             this.templateService.getTemplates()
+              .then(
                 (data: any) => {
+                  data = JSON.parse(data);
                   if (data.thankYouPageUrl) {
                     this.thankyouPageRedirect = true;
                     this.redirectUrl = data.thankYouPageUrl;
@@ -187,7 +191,7 @@ export class PublicDynamicFormPageComponent implements OnInit {
 
                   this.form = data;
                   let questions =
-                    data.patientQuestionAnswers as QuestionAnswer[];
+                    data.questionAnswers as QuestionAnswer[];
                   if (questions && questions.length > 0) {
                     questions = [...questions];
                     questions = questions.filter(
@@ -288,7 +292,7 @@ export class PublicDynamicFormPageComponent implements OnInit {
       let validations = [];
       if (question.required) validations.push(Validators.required);
       if (question.validate && question.regex) {
-        if (question.questionType == QuestionType.DATE) {
+        if (question.type == QuestionType.DATE) {
           this.setDateFormat(question);
         } else {
           validations.push(Validators.pattern(question.regex));
@@ -300,7 +304,7 @@ export class PublicDynamicFormPageComponent implements OnInit {
       this._formState.set(question.questionId, {
         formControl: new FormControl(controlValue, validations),
         validations: validations,
-        questionType: question.questionType,
+        type: question.type,
         isValid: validations.length == 0
       });
     }
@@ -309,12 +313,12 @@ export class PublicDynamicFormPageComponent implements OnInit {
   getControlValue(question: QuestionAnswer) {
     let controlValue;
     if (
-      question.questionType == QuestionType.MULTIPLE_SELECT &&
+      question.type == QuestionType.MULTIPLE_SELECT &&
       !question.showDropDown &&
       question.preSelectCheckbox
     ) {
-      controlValue = question.patientQuestionChoices?.map(
-        (choice: { choiceId: any }) => choice.choiceId
+      controlValue = question.values?.map(
+        (choice: { value: any }) => choice.value
       );
     } else {
       controlValue = '';
@@ -363,12 +367,14 @@ export class PublicDynamicFormPageComponent implements OnInit {
 
   setFormData(data: any) {
     for (const [key, val] of Object.entries(data)) {
-      if (parseInt(key) == this.questions[0].questionId) {
+      if (key == 'email') {
         this.userEmail = val;
       }
       let questionState = this._formState.get(parseInt(key));
-      questionState!.formControl.setValue(val);
-      questionState!.isValid = true;
+      if(questionState) {
+        questionState!.formControl.setValue(val);
+        questionState!.isValid = true;
+      }
     }
   }
 
@@ -551,8 +557,8 @@ export class PublicDynamicFormPageComponent implements OnInit {
     setTimeout(() => {
       this.value = (100 / this.questions.length) * (this.currentQuestionNo + 1);
       if (
-        (this.currentQuestion.questionType == QuestionType.DATE ||
-          this.currentQuestion.questionType == QuestionType.FILE) &&
+        (this.currentQuestion.type == QuestionType.DATE ||
+          this.currentQuestion.type == QuestionType.FILE) &&
         !this.formControl.value
       ) {
         this.formControl.markAsUntouched();
@@ -619,28 +625,28 @@ export class PublicDynamicFormPageComponent implements OnInit {
 
     try {
       console.log(answerMap);
-      const formData = [...this.form.patientQuestionAnswers];
+      const formData = [...this.form.questionAnswers];
 
       for (const question of formData) {
         if (question.hidden) continue;
 
-        if (question.questionType == QuestionType.FILE) {
+        if (question.type == QuestionType.FILE) {
           question.answerText = answerMap.get(question.questionId).fileUrl;
-        } else if (question.questionType == QuestionType.MULTIPLE_SELECT) {
+        } else if (question.type == QuestionType.MULTIPLE_SELECT) {
           if (question.preSelectCheckbox || question.allowMultipleSelection) {
             let answerOptions: number[] = answerMap.get(question.questionId);
             if (answerOptions) {
-              question.answerText = question.patientQuestionChoices
-                .filter((choice: any) => answerOptions.includes(choice.choiceId))
-                .map((choice: any) => choice.choiceName)
+              question.answerText = question.values
+                .filter((choice: any) => answerOptions.includes(choice.value))
+                .map((choice: any) => choice.label)
                 .join(',');
             }
           } else {
-            let answerChoice = question.patientQuestionChoices.find(
-              (choice: any) => choice.choiceId == answerMap.get(question.questionId)
+            let answerChoice = question.values.find(
+              (choice: any) => choice.value == answerMap.get(question.questionId)
             );
             if (answerChoice)
-              question.answerText = answerChoice.choiceName;
+              question.answerText = answerChoice.label;
           }
         } else {
           question.answerText = answerMap.get(question.questionId);
@@ -654,7 +660,7 @@ export class PublicDynamicFormPageComponent implements OnInit {
         landingPageName: '',
         questionnaireId: this.fid,
         gcaptcharesponse: '',
-        patientQuestionAnswers: formData
+        questionAnswers: formData
       };
 
       //this.executeGrecaptcha().then(

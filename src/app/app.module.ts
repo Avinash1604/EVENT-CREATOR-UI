@@ -10,14 +10,16 @@ import { LandingTemplateComponent } from './common/landing-template/landing-temp
 import { HttpClientModule } from '@angular/common/http';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NbDatepickerModule, NbDialogModule, NbMenuModule, NbSidebarModule, NbSidebarService, NbToastrModule, NbWindowModule } from '@nebular/theme';
+import { NbDatepickerModule, NbDialogModule, NbMenuModule, NbSidebarModule, NbSidebarService, NbThemeModule, NbToastrModule, NbWindowModule } from '@nebular/theme';
 import { ThemeModule } from './common/@theme/theme.module';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    LandingTemplateComponent
+    LandingTemplateComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,
@@ -36,6 +38,7 @@ import { ThemeModule } from './common/@theme/theme.module';
     NbDialogModule.forRoot(),
     NbWindowModule.forRoot(),
     NbToastrModule.forRoot(),
+    NbThemeModule.forRoot({ name: 'default' })
   ],
   providers: [NbSidebarService],
   bootstrap: [AppComponent]

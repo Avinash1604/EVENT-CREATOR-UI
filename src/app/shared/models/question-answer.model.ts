@@ -1,19 +1,19 @@
 export interface QuestionAnswer {
   id: any;
   questionId: number;
-  questionName: string;
-  questionType: string;
+  label: string;
+  type: string;
   hidden: boolean;
   required: boolean;
   validate: boolean;
   regex?: string;
-  validationMessage?: string;
+  errorText?: string;
   answer: any;
   answerText: any;
   answerComments: any;
   answerOptions: any;
   questionChoices: any;
-  patientQuestionChoices: any[];
+  values: any[];
   allowMultipleSelection: boolean;
   showDropDown: boolean;
   preSelectCheckbox: boolean;

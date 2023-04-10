@@ -34,4 +34,7 @@ export class LoginComponent implements OnInit {
      this.router.navigate(['/admin/form-editor'])
   }
 
+  async register() {
+    this.router.navigate(['register'])
+  }
 }

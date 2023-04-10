@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { DndDropEvent,DropEffect} from 'ngx-drag-drop';
 import { field, value } from './global.model';
 import { ActivatedRoute } from '@angular/router';
+import { TemplateServiceService } from '../form/template-service.service';
+import { PublicForm } from 'src/app/shared/models/public-form.model';
 
 @Component({
   selector: 'app-form-editor',
@@ -178,7 +180,8 @@ export class FormEditorComponent implements OnInit {
   reports:any = [];
 
   constructor(
-    private route:ActivatedRoute
+    private route:ActivatedRoute,
+    private templateService: TemplateServiceService
   ) { }
 
   ngOnInit() {
@@ -295,47 +298,60 @@ export class FormEditorComponent implements OnInit {
   }
 
   submit() {
-    let valid = true;
-    let validationArray = JSON.parse(JSON.stringify(this.model.attributes));
-    validationArray.reverse().forEach((field: any) => {
-      console.log(field.label+'=>'+field.required+"=>"+field.value);
-      if(field.required && !field.value && field.type != 'checkbox'){
-        alert('ErrorPlease enter '+field.label);
-        valid = false;
-        return false;
-      }
-      if(field.required && field.regex){
-        let regex = new RegExp(field.regex);
-        if(regex.test(field.value) == false){
-          alert('Error'+field.errorText+'error');
-          valid = false;
-          return false;
-        }
-      }
-      if(field.required && field.type == 'checkbox'){
-        if(field.values.filter((r: any)=>r.selected).length == 0){
-          alert('Error Please enterrr '+field.label+' error');
-          valid = false;
-          return false;
-        }
+    let publicForm: PublicForm = {} as PublicForm;
+    //let valid = true;
+    // let validationArray = JSON.parse(JSON.stringify(this.model.attributes));
+    // validationArray.reverse().forEach((field: any) => {
+    //   console.log(field.label+'=>'+field.required+"=>"+field.value);
+    //   if(field.required && !field.value && field.type != 'checkbox'){
+    //     alert('ErrorPlease enter '+field.label);
+    //     valid = false;
+    //     return false;
+    //   }
+    //   if(field.required && field.regex){
+    //     let regex = new RegExp(field.regex);
+    //     if(regex.test(field.value) == false){
+    //       alert('Error'+field.errorText+'error');
+    //       valid = false;
+    //       return false;
+    //     }
+    //   }
+    //   if(field.required && field.type == 'checkbox'){
+    //     if(field.values.filter((r: any)=>r.selected).length == 0){
+    //       alert('Error Please enterrr '+field.label+' error');
+    //       valid = false;
+    //       return false;
+    //     }
 
-      }
-      return true;
-    });
-    if(!valid){
-      return false;
-    }
+    //   }
+    //   return true;
+    // });
+    // if(!valid){
+    //   return false;
+    // }
     console.log('Save',this.model);
+    publicForm.questionnaireId = 2
+    publicForm.questionnaireName = this.model.name;
+    publicForm.description = this.model.description;
+
     let input = new FormData;
     input.append('formId',this.model._id);
     input.append('attributes',JSON.stringify(this.model.attributes))
-    // this.us.postDataApi('/user/formFill',input).subscribe(r=>{
-    //   console.log(r);
-    //   swal('Success','You have contact sucessfully','success');
-    //   this.success = true;
-    // },error=>{
-    //   swal('Error',error.message,'error');
-    // });
+    console.log('forms ',JSON.stringify(this.model.attributes));
+    publicForm.questionAnswers = this.model.attributes;
+
+
+    this.templateService.deleteTemplates("questionair").then(data => {
+      this.templateService.saveTemplates("questionair", JSON.stringify(publicForm)).then(r=>{
+        console.log(r);
+        alert('Success You have contact sucessfully');
+        this.success = true;
+      },error=>{
+        alert('Error'+error.message);
+      });
+    },error=>{
+      alert('Error'+error.message);
+    })
     return ""
   }
 

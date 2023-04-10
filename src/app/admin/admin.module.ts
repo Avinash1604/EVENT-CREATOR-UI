@@ -23,6 +23,8 @@ import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { NbMenuInternalService } from '@nebular/theme/components/menu/menu.service';
 import { ThemeModule } from '../common/@theme/theme.module';
 import { NbSecurityModule } from '@nebular/security';
+import { TemplateListComponent } from './form/template-list/template-list.component';
+import {TableModule} from 'primeng/table';
 
 const appRoutes: Routes = [
   {
@@ -34,6 +36,10 @@ const appRoutes: Routes = [
     }, {
       path: 'form-questions',
       component: PublicDynamicFormPageComponent
+    },
+    {
+      path: 'forms',
+      component: TemplateListComponent
     }]
   }
 ];
@@ -43,7 +49,7 @@ const appRoutes: Routes = [
   declarations: [
     AdminComponent,
     FormEditorComponent,
-    PublicDynamicFormPageComponent
+    TemplateListComponent
   ],
   imports: [
     CommonModule,
@@ -71,7 +77,8 @@ const appRoutes: Routes = [
     NbDatepickerModule,
     NbDialogModule,
     NbWindowModule,
-    NbToastrModule
+    NbToastrModule,
+    TableModule
   ]
 })
 export class AdminModule { }
